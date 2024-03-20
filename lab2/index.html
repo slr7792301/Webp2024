@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<title>title</title>
+</head>
+<body>
+  <div id="container" tabindex="0" class="blockquote text-nowrap"> 
+  </div>
+</body>
+<script>
+window.onload=function() {
+  var randomLetter = String.fromCharCode(65 + Math.floor(Math.random() * 26))+String.fromCharCode(65 + Math.floor(Math.random() * 26));
+  container.textContent = randomLetter;
+  console.log(randomLetter);
+}
+var container=document.getElementById('container');
+window.addEventListener("keyup", function(e) {
+  console.log(e.key);
+  if (e.key.toUpperCase() == container.textContent[0]) {
+    var str = container.textContent;
+    container.textContent = str.substring(1);
+  }
+  add_new_chars();
+}); 
+function add_new_chars(){
+  var newLetter = String.fromCharCode(65 + Math.floor(Math.random() * 26));
+  container.textContent += newLetter;
+}
+</script>
