@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HW#2</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        table {
+            font-family: Arial, Helvetica, sans-serif; border-collapse: collapse;
+            width: 100%;
+        }
+        td, th {
+            border: 1px solid #ddd; padding: 6px;
+        }
+        tr:nth-child(even){background-color: #f2f2f2;} tr:hover {background-color: #ddd;}
+        th {
+            padding-top: 12px; padding-bottom: 12px; text-align: left; background-color: #04AA6D; color: white; 
+        }
+    </style>
+</head>
+<body>
+    <container>
+        <h1>景點觀光展覽資訊 <input type="search" id="siteSearch" onchane="siteSearch()" placeholder="搜索…"/></h1>
+    </container>
+    <table id="csie" class="table table-striped table-hover">
+        <tr>
+            <th>名稱</th>
+            <th>地點</th>
+            <th>票價</th>
+        </tr>
+    </table>
+    <br>
+    <container>
+        <button onclick="previousPage()">上一頁</button>
+        <text id="currentPage"></text>
+        <button onclick="nextPage()">下一頁</button>
+    </container>
+    
+    <script>
+        var openUrl = "https://cloud.culture.tw/frontsite/trans/SearchShowAction.do?method=doFindTypeJ&category=6";
+        var xhr = new XMLHttpRequest();
+        var currentPage = 0;
+        var pageSize = 10;
+        xhr.open('GET', openUrl, true);
+        xhr.send();
+        xhr.onreadystatechange = function(){
+            if(this.readyState == 4 && this.status == 200){
+                dataset = JSON.parse(this.responseText);
+                filteredDataset = dataset;
+                addNewData(currentPage);
+                document.getElementById("currentPage").innerHTML = "　" + (currentPage+1) + " / " + Math.floor((dataset.length/pageSize)+1) + " 頁　";
+            }
+        };
+    
+        function addNewData(page){
+            var start = page*pageSize; //0-10 , 10-20 , 20-30... 
+            var end = start+pageSize;
+            var subset = filteredDataset.slice(start, end);
+            var myTable = document.getElementById("csie");
+            var tbody = myTable.getElementsByTagName('tbody')[1];
+            if (!tbody) {
+                tbody = myTable.createTBody();
+            }
+            tbody.innerHTML = '';
+            subset.forEach(function(data, index){
+                var row = tbody.insertRow(-1);
+                row.insertCell(0).innerHTML = data['title'];
+                row.insertCell(1).innerHTML = data['showInfo'][0]['location'];
+                row.insertCell(2).innerHTML = data['showInfo'][0]['price'];
+            });
+        }
+    
+        function previousPage(){
+            if(currentPage>0){
+                currentPage--;
+                addNewData(currentPage);
+                document.getElementById("currentPage").innerHTML = "　" + (currentPage+1) + " / " + Math.floor((filteredDataset.length/pageSize)+1) + " 頁　";
+            }
+        }
+
+        function nextPage(){
+            if((currentPage+1)*pageSize < filteredDataset.length){
+                currentPage++;
+                addNewData(currentPage);
+                document.getElementById("currentPage").innerHTML = "　" + (currentPage+1) + " / " + Math.floor((filteredDataset.length/pageSize)+1) + " 頁　";
+            }
+        }
+
+        siteSearch.addEventListener('input', function(e){
+            var searchTerms = e.target.value.toLowerCase();
+            filteredDataset = dataset.filter(function(data){
+                return data['title'].toLowerCase().includes(searchTerms) || data['showInfo'][0]['location'].toLowerCase().includes(searchTerms) || data['showInfo'][0]['price'].toLowerCase().includes(searchTerms);
+            });
+            currentPage = 0;
+            addNewData(currentPage);
+            document.getElementById("currentPage").innerHTML = "　" + (currentPage+1) + " / " + Math.floor((filteredDataset.length/pageSize)+1) + " 頁　";
+        });
+        </script>
+</body>
+</html>
